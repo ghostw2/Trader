@@ -2,7 +2,8 @@ import { useMarketStream } from '../hooks/useMarketStream'
 import { Chart } from '../components/Chart'
 
 export function Dashboard() {
-  const { tick, connected } = useMarketStream('ws://localhost:8080/ws')
+  const wsUrl = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8080/ws'
+  const { tick, connected } = useMarketStream(wsUrl)
 
   return (
     <div style={{ padding: '1.5rem', fontFamily: 'monospace', background: '#0f0f1a', minHeight: '100vh', color: '#e0e0e0' }}>

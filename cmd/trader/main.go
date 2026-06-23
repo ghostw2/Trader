@@ -29,10 +29,13 @@ func main() {
 	go client.Run(ctx)
 	go h.Run(ctx)
 
-	srv := api.New(h)
-
+	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h)}
+	go func() {
+		<-ctx.Done()
+		_ = httpSrv.Shutdown(context.Background())
+	}()
 	log.Info().Msg("trader listening on :8080")
-	if err := http.ListenAndServe(":8080", srv); err != nil && err != http.ErrServerClosed {
+	if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal().Err(err).Msg("server error")
 	}
 }
