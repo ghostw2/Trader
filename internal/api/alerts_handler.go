@@ -16,6 +16,10 @@ type createAlertRequest struct {
 }
 
 func (s *Server) handleCreateAlert(w http.ResponseWriter, r *http.Request) {
+	if s.db == nil {
+		http.Error(w, "not configured", http.StatusServiceUnavailable)
+		return
+	}
 	var req createAlertRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid JSON", http.StatusBadRequest)
@@ -40,6 +44,10 @@ func (s *Server) handleCreateAlert(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleListAlerts(w http.ResponseWriter, r *http.Request) {
+	if s.db == nil {
+		http.Error(w, "not configured", http.StatusServiceUnavailable)
+		return
+	}
 	alerts, err := dbpkg.ListAlerts(s.db)
 	if err != nil {
 		http.Error(w, "db error", http.StatusInternalServerError)
@@ -50,6 +58,10 @@ func (s *Server) handleListAlerts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleDeleteAlert(w http.ResponseWriter, r *http.Request) {
+	if s.db == nil {
+		http.Error(w, "not configured", http.StatusServiceUnavailable)
+		return
+	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)

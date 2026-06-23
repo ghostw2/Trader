@@ -41,7 +41,9 @@ func TestCreateAlert(t *testing.T) {
 		t.Errorf("expected 201, got %d", resp.StatusCode)
 	}
 	var alert models.Alert
-	json.NewDecoder(resp.Body).Decode(&alert)
+	if err := json.NewDecoder(resp.Body).Decode(&alert); err != nil {
+		t.Fatalf("decode create response: %v", err)
+	}
 	if alert.ID == 0 {
 		t.Error("expected non-zero ID")
 	}
@@ -77,7 +79,9 @@ func TestListAlerts(t *testing.T) {
 		t.Fatal(err)
 	}
 	var alerts []models.Alert
-	json.NewDecoder(resp.Body).Decode(&alerts)
+	if err := json.NewDecoder(resp.Body).Decode(&alerts); err != nil {
+		t.Fatalf("decode list response: %v", err)
+	}
 	if len(alerts) != 1 {
 		t.Fatalf("expected 1 alert, got %d", len(alerts))
 	}
@@ -92,7 +96,9 @@ func TestDeleteAlert(t *testing.T) {
 	})
 	resp, _ := http.Post(srv.URL+"/api/alerts", "application/json", bytes.NewReader(body))
 	var alert models.Alert
-	json.NewDecoder(resp.Body).Decode(&alert)
+	if err := json.NewDecoder(resp.Body).Decode(&alert); err != nil {
+		t.Fatalf("decode create response: %v", err)
+	}
 
 	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/api/alerts/%d", srv.URL, alert.ID), nil)
 	delResp, _ := http.DefaultClient.Do(req)
@@ -102,7 +108,9 @@ func TestDeleteAlert(t *testing.T) {
 
 	listResp, _ := http.Get(srv.URL + "/api/alerts")
 	var alerts []models.Alert
-	json.NewDecoder(listResp.Body).Decode(&alerts)
+	if err := json.NewDecoder(listResp.Body).Decode(&alerts); err != nil {
+		t.Fatalf("decode list after delete: %v", err)
+	}
 	if len(alerts) != 0 {
 		t.Errorf("expected 0 after delete, got %d", len(alerts))
 	}
