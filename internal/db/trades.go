@@ -67,7 +67,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 
 	if _, err := tx.Exec(
 		`UPDATE portfolio SET cash = ?, btc = ?, avg_buy_price = ? WHERE id = 1`,
-		roundForDB(cash), roundForDB(btc), roundForDB(avgBuyPrice),
+		roundTo8(cash), roundTo8(btc), roundTo8(avgBuyPrice),
 	); err != nil {
 		return models.Trade{}, err
 	}
@@ -75,7 +75,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 	now := time.Now().UnixMilli()
 	res, err := tx.Exec(
 		`INSERT INTO trades (side, quantity, price, total, created_at) VALUES (?,?,?,?,?)`,
-		side, quantity, price, roundForDB(total), now,
+		side, quantity, price, roundTo8(total), now,
 	)
 	if err != nil {
 		return models.Trade{}, err
@@ -85,10 +85,16 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 	if err := tx.Commit(); err != nil {
 		return models.Trade{}, err
 	}
+	roundedTotal := roundTo8(total)
 	return models.Trade{
 		ID: id, Side: side, Quantity: quantity,
-		Price: price, Total: total, CreatedAt: now,
+		Price: price, Total: roundedTotal, CreatedAt: now,
 	}, nil
+}
+
+// roundTo8 rounds to 8 decimal places (satoshi precision) for consistent DB storage.
+func roundTo8(v float64) float64 {
+	return math.Round(v*1e8) / 1e8
 }
 
 func ListTrades(sqldb *sql.DB) ([]models.Trade, error) {
@@ -110,11 +116,4 @@ func ListTrades(sqldb *sql.DB) ([]models.Trade, error) {
 	return trades, rows.Err()
 }
 
-// roundForDB rounds a value to 8 decimal places for database storage only.
-// This prevents floating-point precision issues in the stored data without
-// affecting intermediate calculations.
-func roundForDB(val float64) float64 {
-	pow := math.Pow(10, 8)
-	return math.Round(val*pow) / pow
-}
 
