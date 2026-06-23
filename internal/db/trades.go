@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -41,12 +42,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 		return models.Trade{}, err
 	}
 
-	// Round read values to handle floating-point precision
-	cash = round(cash, 8)
-	btc = round(btc, 8)
-	avgBuyPrice = round(avgBuyPrice, 8)
-
-	total := round(quantity*price, 8)
+	total := quantity * price
 	switch side {
 	case "buy":
 		if cash < total {
@@ -65,16 +61,13 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 		if btc == 0 {
 			avgBuyPrice = 0
 		}
+	default:
+		return models.Trade{}, fmt.Errorf("unknown order side: %q", side)
 	}
-
-	// Round to 8 decimal places to avoid floating-point precision issues
-	cash = round(cash, 8)
-	btc = round(btc, 8)
-	avgBuyPrice = round(avgBuyPrice, 8)
 
 	if _, err := tx.Exec(
 		`UPDATE portfolio SET cash = ?, btc = ?, avg_buy_price = ? WHERE id = 1`,
-		cash, btc, avgBuyPrice,
+		roundForDB(cash), roundForDB(btc), roundForDB(avgBuyPrice),
 	); err != nil {
 		return models.Trade{}, err
 	}
@@ -82,7 +75,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 	now := time.Now().UnixMilli()
 	res, err := tx.Exec(
 		`INSERT INTO trades (side, quantity, price, total, created_at) VALUES (?,?,?,?,?)`,
-		side, quantity, price, total, now,
+		side, quantity, price, roundForDB(total), now,
 	)
 	if err != nil {
 		return models.Trade{}, err
@@ -117,8 +110,10 @@ func ListTrades(sqldb *sql.DB) ([]models.Trade, error) {
 	return trades, rows.Err()
 }
 
-// round rounds a float64 to n decimal places
-func round(val float64, decimals int) float64 {
-	pow := math.Pow(10, float64(decimals))
+// roundForDB rounds a value to 8 decimal places for database storage only.
+// This prevents floating-point precision issues in the stored data without
+// affecting intermediate calculations.
+func roundForDB(val float64) float64 {
+	pow := math.Pow(10, 8)
 	return math.Round(val*pow) / pow
 }
