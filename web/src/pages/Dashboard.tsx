@@ -11,11 +11,11 @@ export function Dashboard() {
   const [targetPrice, setTargetPrice] = useState('')
   const [direction, setDirection] = useState<'above' | 'below'>('below')
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const price = parseFloat(targetPrice)
     if (!isNaN(price) && price > 0) {
-      createAlert('BTCUSDT', price, direction)
+      await createAlert('BTCUSDT', price, direction)
       setTargetPrice('')
     }
   }

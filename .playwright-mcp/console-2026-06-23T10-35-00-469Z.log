@@ -1,0 +1,22 @@
+[      67ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=f2f13438:14336
+[      85ms] [WARNING] WebSocket connection to 'ws://localhost:8080/ws' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/src/hooks/useMarketStream.ts:28
+[  298774ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=u_Fhui0cQbvy' failed:  @ http://localhost:5173/@vite/client:864
+[  298774ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed:  @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  298774ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:992
+[  298837ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=f2f13438:14336
+[  298844ms] [WARNING] WebSocket connection to 'ws://localhost:8080/ws' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/src/hooks/useMarketStream.ts:28
+[  298857ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  300860ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  302863ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  304866ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  525164ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=u_Fhui0cQbvy' failed:  @ http://localhost:5173/@vite/client:864
+[  525164ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed:  @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  525164ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:992
+[  525225ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=f2f13438:14336
+[  525227ms] [WARNING] WebSocket connection to 'ws://localhost:8080/ws' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/src/hooks/useMarketStream.ts:28
+[  525238ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  632402ms] [ERROR] WebSocket connection to 'ws://localhost:8080/ws' failed:  @ http://localhost:5173/src/hooks/useMarketStream.ts:9
+[  632402ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=u_Fhui0cQbvy' failed:  @ http://localhost:5173/@vite/client:864
+[  632402ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:992
+[  638577ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=f2f13438:14336
+[  638591ms] [WARNING] WebSocket connection to 'ws://localhost:8080/ws' failed: WebSocket is closed before the connection is established. @ http://localhost:5173/src/hooks/useMarketStream.ts:28

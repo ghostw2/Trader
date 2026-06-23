@@ -1,0 +1,15 @@
+- generic [ref=e3]:
+  - heading "Trader" [level=1] [ref=e4]
+  - paragraph [ref=e5]: ● Connected
+  - table [ref=e8]:
+    - row "Charting by TradingView" [ref=e9]:
+      - cell
+      - cell "Charting by TradingView" [ref=e10]:
+        - link "Charting by TradingView" [ref=e14] [cursor=pointer]:
+          - /url: https://www.tradingview.com/?utm_medium=lwc-link&utm_campaign=lwc-chart&utm_source=localhost/
+          - img [ref=e15]
+      - cell [ref=e19]
+    - row [ref=e23]:
+      - cell
+      - cell [ref=e24]
+      - cell [ref=e28]
