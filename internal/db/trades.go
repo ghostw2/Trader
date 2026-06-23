@@ -53,7 +53,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 		cash -= total
 		btc = newBTC
 	case "sell":
-		if btc < quantity {
+		if btc < quantity-1e-9 {
 			return models.Trade{}, ErrInsufficientBTC
 		}
 		btc -= quantity

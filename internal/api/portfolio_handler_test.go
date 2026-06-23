@@ -144,7 +144,13 @@ func TestListTradesEndpoint(t *testing.T) {
 	sendPriceTick(setup.ticks, "60000.00")
 
 	body, _ := json.Marshal(map[string]any{"side": "buy", "quantity": 0.05})
-	http.Post(setup.srv.URL+"/api/orders", "application/json", bytes.NewReader(body))
+	orderResp, err := http.Post(setup.srv.URL+"/api/orders", "application/json", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if orderResp.StatusCode != http.StatusCreated {
+		t.Fatalf("expected order 201, got %d", orderResp.StatusCode)
+	}
 
 	resp, err := http.Get(setup.srv.URL + "/api/trades")
 	if err != nil {
