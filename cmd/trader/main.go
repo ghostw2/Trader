@@ -13,6 +13,7 @@ import (
 	"github.com/menribardhi/trader/internal/models"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
