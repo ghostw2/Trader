@@ -9,6 +9,7 @@ import (
 
 	"github.com/menribardhi/trader/internal/api"
 	"github.com/menribardhi/trader/internal/binance"
+	"github.com/menribardhi/trader/internal/db"
 	"github.com/menribardhi/trader/internal/hub"
 	"github.com/menribardhi/trader/internal/models"
 	"github.com/rs/zerolog"
@@ -24,13 +25,19 @@ func main() {
 
 	ticks := make(chan models.Tick, 64)
 
+	sqldb, err := db.Open("trader.db")
+	if err != nil {
+		log.Fatal().Err(err).Msg("open db")
+	}
+	defer sqldb.Close()
+
 	h := hub.New(ticks)
 	client := binance.New("BTCUSDT", ticks)
 
 	go client.Run(ctx)
 	go h.Run(ctx)
 
-	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h)}
+	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h, sqldb)}
 	go func() {
 		<-ctx.Done()
 		_ = httpSrv.Shutdown(context.Background())
