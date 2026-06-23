@@ -13,8 +13,12 @@ export function useAlerts() {
   const [alerts, setAlerts] = useState<Alert[]>([])
 
   const fetchAlerts = useCallback(async () => {
-    const res = await fetch('/api/alerts')
-    if (res.ok) setAlerts(await res.json())
+    try {
+      const res = await fetch('/api/alerts')
+      if (res.ok) setAlerts(await res.json())
+    } catch (error) {
+      console.error('Failed to fetch alerts:', error)
+    }
   }, [])
 
   useEffect(() => {
@@ -28,17 +32,25 @@ export function useAlerts() {
     targetPrice: number,
     direction: 'above' | 'below',
   ) => {
-    const res = await fetch('/api/alerts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol, target_price: targetPrice, direction }),
-    })
-    if (res.ok) await fetchAlerts()
+    try {
+      const res = await fetch('/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symbol, target_price: targetPrice, direction }),
+      })
+      if (res.ok) await fetchAlerts()
+    } catch (error) {
+      console.error('Failed to create alert:', error)
+    }
   }, [fetchAlerts])
 
   const deleteAlert = useCallback(async (id: number) => {
-    await fetch(`/api/alerts/${id}`, { method: 'DELETE' })
-    await fetchAlerts()
+    try {
+      const res = await fetch(`/api/alerts/${id}`, { method: 'DELETE' })
+      if (res.ok) await fetchAlerts()
+    } catch (error) {
+      console.error('Failed to delete alert:', error)
+    }
   }, [fetchAlerts])
 
   return { alerts, createAlert, deleteAlert }
