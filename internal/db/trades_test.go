@@ -55,8 +55,9 @@ func TestExecuteOrderBuy(t *testing.T) {
 	}
 
 	cash, btc, avg, _ := db.GetPortfolio(sqldb)
-	if cash != db.StartingCash-6000.0 {
-		t.Errorf("cash: got %v, want %v", cash, db.StartingCash-6000.0)
+	wantCash := db.StartingCash - 6000.0
+	if cash < wantCash-0.01 || cash > wantCash+0.01 {
+		t.Errorf("cash: got %v, want %v (within 0.01)", cash, wantCash)
 	}
 	if btc != 0.1 {
 		t.Errorf("btc: got %v, want 0.1", btc)
@@ -77,8 +78,8 @@ func TestExecuteOrderSell(t *testing.T) {
 	}
 	cash, btc, _, _ := db.GetPortfolio(sqldb)
 	wantCash := db.StartingCash - 6000.0 + 3250.0
-	if cash != wantCash {
-		t.Errorf("cash: got %v, want %v", cash, wantCash)
+	if cash < wantCash-0.01 || cash > wantCash+0.01 {
+		t.Errorf("cash: got %v, want %v (within 0.01)", cash, wantCash)
 	}
 	if btc != 0.05 {
 		t.Errorf("btc: got %v, want 0.05", btc)

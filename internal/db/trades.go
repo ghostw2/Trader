@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/menribardhi/trader/internal/models"
@@ -67,7 +66,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 
 	if _, err := tx.Exec(
 		`UPDATE portfolio SET cash = ?, btc = ?, avg_buy_price = ? WHERE id = 1`,
-		roundForDB(cash), roundForDB(btc), roundForDB(avgBuyPrice),
+		cash, btc, avgBuyPrice,
 	); err != nil {
 		return models.Trade{}, err
 	}
@@ -75,7 +74,7 @@ func ExecuteOrder(sqldb *sql.DB, side string, quantity, price float64) (models.T
 	now := time.Now().UnixMilli()
 	res, err := tx.Exec(
 		`INSERT INTO trades (side, quantity, price, total, created_at) VALUES (?,?,?,?,?)`,
-		side, quantity, price, roundForDB(total), now,
+		side, quantity, price, total, now,
 	)
 	if err != nil {
 		return models.Trade{}, err
@@ -110,10 +109,3 @@ func ListTrades(sqldb *sql.DB) ([]models.Trade, error) {
 	return trades, rows.Err()
 }
 
-// roundForDB rounds a value to 8 decimal places for database storage only.
-// This prevents floating-point precision issues in the stored data without
-// affecting intermediate calculations.
-func roundForDB(val float64) float64 {
-	pow := math.Pow(10, 8)
-	return math.Round(val*pow) / pow
-}
