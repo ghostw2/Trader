@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { createChart, LineSeries } from 'lightweight-charts'
-import type { IChartApi, ISeriesApi, UTCTimestamp } from 'lightweight-charts'
+import type { ISeriesApi, UTCTimestamp } from 'lightweight-charts'
 import type { Tick } from '../hooks/useMarketStream'
 
 interface ChartProps {
@@ -9,7 +9,6 @@ interface ChartProps {
 
 export function Chart({ tick }: ChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<'Line'> | null>(null)
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export function Chart({ tick }: ChartProps) {
       grid: { vertLines: { color: '#2a2a4a' }, horzLines: { color: '#2a2a4a' } },
     })
     const series = chart.addSeries(LineSeries, { color: '#00d4aa', lineWidth: 2 })
-    chartRef.current = chart
     seriesRef.current = series
 
     const handleResize = () => {
@@ -37,10 +35,14 @@ export function Chart({ tick }: ChartProps) {
 
   useEffect(() => {
     if (!tick || !seriesRef.current) return
-    seriesRef.current.update({
-      time: Math.floor(tick.timestamp / 1000) as UTCTimestamp,
-      value: parseFloat(tick.price),
-    })
+    try {
+      seriesRef.current.update({
+        time: Math.floor(tick.timestamp / 1000) as UTCTimestamp, // ms → seconds
+        value: parseFloat(tick.price),
+      })
+    } catch {
+      // lightweight-charts throws on duplicate/out-of-order timestamps
+    }
   }, [tick])
 
   return <div ref={containerRef} style={{ width: '100%' }} />
