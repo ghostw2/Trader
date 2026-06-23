@@ -45,7 +45,8 @@ func TestHubDropsSlowConsumer(t *testing.T) {
 	defer cancel()
 	go h.Run(ctx)
 
-	_ = h.Subscribe() // subscribe but never read — should not block hub
+	slow := h.Subscribe()
+	defer h.Unsubscribe(slow)
 
 	fast := h.Subscribe()
 	defer h.Unsubscribe(fast)
@@ -79,5 +80,27 @@ func TestHubUnsubscribeClosesChannel(t *testing.T) {
 		}
 	case <-ctx.Done():
 		t.Fatal("timeout: channel was not closed")
+	}
+}
+
+func TestHubContextCancellation(t *testing.T) {
+	ticks := make(chan models.Tick, 1)
+	h := hub.New(ticks)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		h.Run(ctx)
+	}()
+
+	cancel()
+
+	select {
+	case <-done:
+		// Run returned after context cancellation — correct
+	case <-time.After(time.Second):
+		t.Fatal("Run did not return after context cancellation")
 	}
 }
