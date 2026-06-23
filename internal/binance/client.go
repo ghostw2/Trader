@@ -15,9 +15,10 @@ import (
 const binanceStreamURL = "wss://stream.binance.com:9443/ws/%s@miniTicker"
 
 type miniTickerMsg struct {
-	Symbol string `json:"s"`
-	Close  string `json:"c"`
-	Time   int64  `json:"E"`
+	EventType string      `json:"e"` // prevents case-insensitive collision with "E" (event time)
+	Symbol    string      `json:"s"`
+	Close     string      `json:"c"`
+	Time      json.Number `json:"E"`
 }
 
 // Client connects to a WebSocket price stream and writes Ticks to out.
@@ -83,8 +84,9 @@ func (c *Client) connect(ctx context.Context) error {
 		if err := json.Unmarshal(msg, &m); err != nil {
 			continue
 		}
+		ts, _ := m.Time.Int64()
 		select {
-		case c.out <- models.Tick{Symbol: m.Symbol, Price: m.Close, Timestamp: m.Time}:
+		case c.out <- models.Tick{Symbol: m.Symbol, Price: m.Close, Timestamp: ts}:
 		case <-ctx.Done():
 			return nil
 		}
