@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -59,9 +60,9 @@ func TestClientReceivesTick(t *testing.T) {
 }
 
 func TestClientReconnectsOnDisconnect(t *testing.T) {
-	calls := 0
+	var calls atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		calls++
+		calls.Add(1)
 		up := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 		conn, _ := up.Upgrade(w, r, nil)
 		conn.Close()
@@ -76,7 +77,7 @@ func TestClientReconnectsOnDisconnect(t *testing.T) {
 	defer cancel()
 	client.Run(ctx)
 
-	if calls < 2 {
-		t.Errorf("expected at least 2 connection attempts, got %d", calls)
+	if calls.Load() < 2 {
+		t.Errorf("expected at least 2 connection attempts, got %d", calls.Load())
 	}
 }

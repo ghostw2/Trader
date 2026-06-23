@@ -48,8 +48,8 @@ func (c *Client) Run(ctx context.Context) {
 			if ctx.Err() != nil {
 				return
 			}
+			log.Warn().Err(err).Msgf("binance: reconnecting in %s", backoff)
 			if backoff > 0 {
-				log.Warn().Err(err).Msgf("binance: reconnecting in %s", backoff)
 				select {
 				case <-time.After(backoff):
 				case <-ctx.Done():
