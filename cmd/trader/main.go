@@ -30,6 +30,10 @@ func main() {
 	}
 	defer sqldb.Close()
 
+	if err := dbpkg.InitPortfolio(sqldb); err != nil {
+		log.Fatal().Err(err).Msg("failed to init portfolio")
+	}
+
 	ticks := make(chan models.Tick, 64)
 	h := hub.New(ticks)
 	client := binance.New("BTCUSDT", ticks)
