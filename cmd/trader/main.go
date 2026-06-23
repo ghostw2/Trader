@@ -12,6 +12,7 @@ import (
 	dbpkg "github.com/menribardhi/trader/internal/db"
 	"github.com/menribardhi/trader/internal/hub"
 	"github.com/menribardhi/trader/internal/models"
+	"github.com/menribardhi/trader/internal/portfolio"
 	"github.com/menribardhi/trader/internal/worker"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -33,11 +34,14 @@ func main() {
 	h := hub.New(ticks)
 	client := binance.New("BTCUSDT", ticks)
 
+	feed := portfolio.NewPriceFeed(h)
+
 	go client.Run(ctx)
 	go h.Run(ctx)
+	go feed.Run(ctx)
 	go worker.NewAlertChecker(h, sqldb).Run(ctx)
 
-	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h, sqldb)}
+	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h, sqldb, feed)}
 	go func() {
 		<-ctx.Done()
 		_ = httpSrv.Shutdown(context.Background())
