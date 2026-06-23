@@ -21,8 +21,7 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ padding: '1.5rem', fontFamily: 'monospace', background: '#0f0f1a', minHeight: '100vh', color: '#e0e0e0' }}>
-      <h1 style={{ marginBottom: '0.5rem' }}>Trader</h1>
+    <div>
       <p style={{ color: connected ? '#00d4aa' : '#ff4444', marginBottom: '1rem' }}>
         {connected ? '● Connected' : '○ Disconnected'}
       </p>
