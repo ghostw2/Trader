@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/rs/zerolog/log"
 )
 
 var upgrader = websocket.Upgrader{
@@ -22,6 +23,8 @@ func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
 	defer s.hub.Unsubscribe(sub)
 
 	closed := make(chan struct{})
+	// gorilla/websocket: one goroutine reads, one writes — contract satisfied.
+	// conn.Close() unblocking ReadMessage is explicitly safe per gorilla docs.
 	go func() {
 		defer close(closed)
 		for {
@@ -39,6 +42,7 @@ func (s *Server) handleWS(w http.ResponseWriter, r *http.Request) {
 			}
 			data, err := json.Marshal(tick)
 			if err != nil {
+				log.Warn().Err(err).Msg("ws: failed to marshal tick")
 				continue
 			}
 			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
