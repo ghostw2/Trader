@@ -48,11 +48,42 @@ func ListAlerts(sqldb *sql.DB) ([]models.Alert, error) {
 }
 
 func DeleteAlert(sqldb *sql.DB, id int64) error {
-	_, err := sqldb.Exec(`DELETE FROM alerts WHERE id = ?`, id)
-	return err
+	res, err := sqldb.Exec(`DELETE FROM alerts WHERE id = ?`, id)
+	if err != nil {
+		return err
+	}
+	n, _ := res.RowsAffected()
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func MarkTriggered(sqldb *sql.DB, id, at int64) error {
-	_, err := sqldb.Exec(`UPDATE alerts SET triggered_at = ? WHERE id = ?`, at, id)
+	_, err := sqldb.Exec(`UPDATE alerts SET triggered_at = ? WHERE id = ? AND triggered_at IS NULL`, at, id)
 	return err
+}
+
+func ListActiveAlerts(sqldb *sql.DB) ([]models.Alert, error) {
+	rows, err := sqldb.Query(
+		`SELECT id, symbol, target_price, direction, created_at, triggered_at FROM alerts WHERE triggered_at IS NULL ORDER BY id DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	alerts := []models.Alert{}
+	for rows.Next() {
+		var a models.Alert
+		var triggeredAt sql.NullInt64
+		if err := rows.Scan(&a.ID, &a.Symbol, &a.TargetPrice, &a.Direction, &a.CreatedAt, &triggeredAt); err != nil {
+			return nil, err
+		}
+		if triggeredAt.Valid {
+			v := triggeredAt.Int64
+			a.TriggeredAt = &v
+		}
+		alerts = append(alerts, a)
+	}
+	return alerts, rows.Err()
 }

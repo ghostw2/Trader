@@ -42,15 +42,12 @@ func (ac *AlertChecker) check(tick models.Tick) {
 	if err != nil {
 		return
 	}
-	alerts, err := dbpkg.ListAlerts(ac.db)
+	alerts, err := dbpkg.ListActiveAlerts(ac.db)
 	if err != nil {
 		return
 	}
 	now := time.Now().UnixMilli()
 	for _, a := range alerts {
-		if a.TriggeredAt != nil {
-			continue
-		}
 		hit := (a.Direction == "above" && price >= a.TargetPrice) ||
 			(a.Direction == "below" && price <= a.TargetPrice)
 		if !hit {

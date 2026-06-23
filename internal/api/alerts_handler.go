@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -31,6 +32,10 @@ func (s *Server) handleCreateAlert(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Symbol == "" || req.TargetPrice <= 0 {
 		http.Error(w, "symbol and positive target_price required", http.StatusBadRequest)
+		return
+	}
+	if len(req.Symbol) > 20 {
+		http.Error(w, "symbol too long", http.StatusBadRequest)
 		return
 	}
 	alert, err := dbpkg.CreateAlert(s.db, req.Symbol, req.Direction, req.TargetPrice)
@@ -68,6 +73,10 @@ func (s *Server) handleDeleteAlert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := dbpkg.DeleteAlert(s.db, id); err != nil {
+		if errors.Is(err, dbpkg.ErrNotFound) {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
 		http.Error(w, "db error", http.StatusInternalServerError)
 		return
 	}

@@ -2,13 +2,20 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 
 	_ "modernc.org/sqlite"
 )
 
+var ErrNotFound = errors.New("not found")
+
 func Open(path string) (*sql.DB, error) {
 	sqldb, err := sql.Open("sqlite", path)
 	if err != nil {
+		return nil, err
+	}
+	if _, err := sqldb.Exec(`PRAGMA journal_mode=WAL`); err != nil {
+		sqldb.Close()
 		return nil, err
 	}
 	if err := migrate(sqldb); err != nil {
