@@ -22,7 +22,7 @@ func newAlertTestServer(t *testing.T) (*httptest.Server, func()) {
 	if err != nil {
 		t.Fatalf("open db: %v", err)
 	}
-	srv := httptest.NewServer(api.New(h, sqldb, nil))
+	srv := httptest.NewServer(api.New(h, sqldb, nil, nil))
 	return srv, func() { srv.Close(); sqldb.Close() }
 }
 

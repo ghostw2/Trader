@@ -22,7 +22,7 @@ func TestWSHandlerDeliversTick(t *testing.T) {
 	defer cancel()
 	go h.Run(ctx)
 
-	srv := httptest.NewServer(api.New(h, nil, nil))
+	srv := httptest.NewServer(api.New(h, nil, nil, nil))
 	defer srv.Close()
 
 	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http") + "/ws"

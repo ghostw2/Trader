@@ -36,7 +36,7 @@ func newPortfolioTestServer(t *testing.T) portfolioTestSetup {
 	feed := portfolio.NewPriceFeed(h)
 	go h.Run(ctx)
 	go feed.Run(ctx)
-	srv := httptest.NewServer(api.New(h, sqldb, feed))
+	srv := httptest.NewServer(api.New(h, sqldb, feed, nil))
 	t.Cleanup(func() {
 		srv.Close()
 		sqldb.Close()

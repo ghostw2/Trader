@@ -13,6 +13,7 @@ import (
 	"github.com/menribardhi/trader/internal/hub"
 	"github.com/menribardhi/trader/internal/models"
 	"github.com/menribardhi/trader/internal/portfolio"
+	"github.com/menribardhi/trader/internal/strategy"
 	"github.com/menribardhi/trader/internal/worker"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -37,15 +38,16 @@ func main() {
 	ticks := make(chan models.Tick, 64)
 	h := hub.New(ticks)
 	client := binance.New("BTCUSDT", ticks)
-
 	feed := portfolio.NewPriceFeed(h)
+	eng := strategy.NewEngine(h)
 
 	go client.Run(ctx)
 	go h.Run(ctx)
 	go feed.Run(ctx)
+	go eng.Run(ctx)
 	go worker.NewAlertChecker(h, sqldb).Run(ctx)
 
-	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h, sqldb, feed)}
+	httpSrv := &http.Server{Addr: ":8080", Handler: api.New(h, sqldb, feed, eng)}
 	go func() {
 		<-ctx.Done()
 		_ = httpSrv.Shutdown(context.Background())
