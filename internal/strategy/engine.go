@@ -18,13 +18,14 @@ const (
 )
 
 type Engine struct {
-	hub      *hub.Hub
-	mu       sync.Mutex
-	window   []float64
-	fastPrev float64
-	slowPrev float64
-	clientMu sync.RWMutex
-	clients  map[chan models.Signal]struct{}
+	hub         *hub.Hub
+	mu          sync.Mutex
+	window      []float64
+	fastPrev    float64
+	slowPrev    float64
+	initialized bool
+	clientMu    sync.RWMutex
+	clients     map[chan models.Signal]struct{}
 }
 
 func NewEngine(h *hub.Hub) *Engine {
@@ -86,37 +87,48 @@ func (e *Engine) ProcessPrice(price float64) {
 	}
 	window := make([]float64, len(e.window))
 	copy(window, e.window)
-	fastPrev := e.fastPrev
-	slowPrev := e.slowPrev
-	e.mu.Unlock()
 
+	// Compute indicators inside the lock — window is at most slowPeriod floats,
+	// so this is effectively instant and eliminates the split-lock race.
 	fastNow := SMA(window, fastPeriod)
 	slowNow := SMA(window, slowPeriod)
+	ema := EMA(window, emaPeriod)
+	rsi := RSI(window, rsiPeriod)
+
+	// Snapshot old values for crossover comparison before updating.
+	oldFastPrev := e.fastPrev
+	oldSlowPrev := e.slowPrev
+	oldInitialized := e.initialized
+
+	if len(window) >= slowPeriod {
+		e.fastPrev = fastNow
+		e.slowPrev = slowNow
+		e.initialized = true
+	}
+	e.mu.Unlock()
 
 	sig := models.Signal{
 		Price:     price,
 		Timestamp: time.Now().UnixMilli(),
 		SMAFast:   fastNow,
 		SMASlow:   slowNow,
-		EMA:       EMA(window, emaPeriod),
-		RSI:       RSI(window, rsiPeriod),
+		EMA:       ema,
+		RSI:       rsi,
 	}
 
-	if len(window) < slowPeriod {
+	switch {
+	case len(window) < slowPeriod:
+		// Pre-fill: not enough data yet.
 		sig.Side = "HOLD"
-	} else {
-		switch {
-		case fastPrev <= slowPrev && fastNow > slowNow:
-			sig.Side = "BUY"
-		case fastPrev >= slowPrev && fastNow < slowNow:
-			sig.Side = "SELL"
-		default:
-			sig.Side = "HOLD"
-		}
-		e.mu.Lock()
-		e.fastPrev = fastNow
-		e.slowPrev = slowNow
-		e.mu.Unlock()
+	case !oldInitialized:
+		// First full-window price: prime the prev values, no crossover to detect.
+		sig.Side = "HOLD"
+	case oldFastPrev <= oldSlowPrev && fastNow > slowNow:
+		sig.Side = "BUY"
+	case oldFastPrev >= oldSlowPrev && fastNow < slowNow:
+		sig.Side = "SELL"
+	default:
+		sig.Side = "HOLD"
 	}
 
 	e.clientMu.RLock()
