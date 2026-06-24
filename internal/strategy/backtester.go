@@ -13,6 +13,13 @@ func NewBacktester() *Backtester { return &Backtester{} }
 // Run simulates paper trading on closes. BUY allocates all cash; SELL liquidates
 // all BTC. Returns a BacktestSummary with all executed trades and final value.
 func (b *Backtester) Run(closes []float64) models.BacktestSummary {
+	if len(closes) == 0 {
+		return models.BacktestSummary{
+			Trades:     []models.BacktestTrade{},
+			FinalValue: startingCash,
+		}
+	}
+
 	cash := startingCash
 	btc := 0.0
 	var trades []models.BacktestTrade
