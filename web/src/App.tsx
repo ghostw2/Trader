@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Dashboard } from './pages/Dashboard'
 import { Portfolio } from './pages/Portfolio'
+import { Strategy } from './pages/Strategy'
 import { Nav } from './components/Nav'
 
-type Page = 'dashboard' | 'portfolio'
+type Page = 'dashboard' | 'portfolio' | 'strategy'
 
 function App() {
   const [page, setPage] = useState<Page>('dashboard')
@@ -20,7 +21,9 @@ function App() {
     >
       <h1 style={{ marginBottom: '1rem' }}>Trader</h1>
       <Nav active={page} onChange={setPage} />
-      {page === 'dashboard' ? <Dashboard /> : <Portfolio />}
+      {page === 'dashboard' && <Dashboard />}
+      {page === 'portfolio' && <Portfolio />}
+      {page === 'strategy' && <Strategy />}
     </div>
   )
 }
