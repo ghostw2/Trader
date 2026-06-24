@@ -51,6 +51,7 @@ func (s *Server) handleRunBacktest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "not configured", http.StatusServiceUnavailable)
 		return
 	}
+	// klinesURL is always a server-controlled constant; never expose to user input.
 	closes, err := binance.FetchKlinesFromURL(s.klinesURL)
 	if err != nil {
 		http.Error(w, "failed to fetch historical data", http.StatusServiceUnavailable)
