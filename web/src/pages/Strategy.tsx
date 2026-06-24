@@ -3,7 +3,7 @@ import { useStrategySignals } from '../hooks/useStrategySignals'
 import type { Signal } from '../hooks/useStrategySignals'
 
 interface BacktestTrade {
-  side: string
+  side: 'BUY' | 'SELL'
   price: number
   time: number
 }
@@ -84,8 +84,8 @@ export function Strategy() {
               </tr>
             </thead>
             <tbody>
-              {recentSignals.map((s, i) => (
-                <tr key={i} style={{ borderTop: '1px solid #2a2a4a' }}>
+              {recentSignals.map((s) => (
+                <tr key={s.timestamp} style={{ borderTop: '1px solid #2a2a4a' }}>
                   <td style={{ padding: '0.35rem 0.5rem 0.35rem 0', opacity: 0.5 }}>
                     {new Date(s.timestamp).toLocaleTimeString()}
                   </td>
@@ -148,7 +148,7 @@ export function Strategy() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', maxWidth: '480px', fontSize: '0.875rem' }}>
                   <thead>
                     <tr style={{ opacity: 0.5, textAlign: 'left' }}>
-                      <th style={{ paddingBottom: '0.5rem' }}>Index</th>
+                      <th style={{ paddingBottom: '0.5rem' }}>Time</th>
                       <th style={{ paddingBottom: '0.5rem' }}>Side</th>
                       <th style={{ paddingBottom: '0.5rem' }}>Price</th>
                     </tr>
