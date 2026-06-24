@@ -43,9 +43,6 @@ func RSI(prices []float64, period int) float64 {
 	for i := 1; i < len(prices); i++ {
 		changes[i-1] = prices[i] - prices[i-1]
 	}
-	if len(changes) < period {
-		return 0
-	}
 	var avgGain, avgLoss float64
 	for i := 0; i < period; i++ {
 		if changes[i] > 0 {
@@ -65,6 +62,9 @@ func RSI(prices []float64, period int) float64 {
 		}
 		avgGain = (avgGain*float64(period-1) + gain) / float64(period)
 		avgLoss = (avgLoss*float64(period-1) + loss) / float64(period)
+	}
+	if avgGain == 0 && avgLoss == 0 {
+		return 50
 	}
 	if avgLoss == 0 {
 		return 100
