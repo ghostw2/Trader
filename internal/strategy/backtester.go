@@ -37,14 +37,16 @@ func (b *Backtester) Run(closes []float64) models.BacktestSummary {
 
 		fastNow := SMA(window, fastPeriod)
 		slowNow := SMA(window, slowPeriod)
+		ema := EMA(window, emaPeriod)
+		rsi := RSI(window, rsiPeriod)
 
 		if initialized {
 			switch {
-			case fastPrev <= slowPrev && fastNow > slowNow && cash > 0:
+			case fastPrev <= slowPrev && fastNow > slowNow && cash > 0 && rsi < 70 && price > ema:
 				btc = cash / price
 				cash = 0
 				trades = append(trades, models.BacktestTrade{Side: "BUY", Price: price, Time: int64(i)})
-			case fastPrev >= slowPrev && fastNow < slowNow && btc > 0:
+			case fastPrev >= slowPrev && fastNow < slowNow && btc > 0 && rsi > 30 && price < ema:
 				cash = btc * price
 				btc = 0
 				trades = append(trades, models.BacktestTrade{Side: "SELL", Price: price, Time: int64(i)})
