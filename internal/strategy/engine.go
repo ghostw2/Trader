@@ -123,9 +123,9 @@ func (e *Engine) ProcessPrice(price float64) {
 	case !oldInitialized:
 		// First full-window price: prime the prev values, no crossover to detect.
 		sig.Side = "HOLD"
-	case oldFastPrev <= oldSlowPrev && fastNow > slowNow:
+	case oldFastPrev <= oldSlowPrev && fastNow > slowNow && rsi < 70 && price > ema:
 		sig.Side = "BUY"
-	case oldFastPrev >= oldSlowPrev && fastNow < slowNow:
+	case oldFastPrev >= oldSlowPrev && fastNow < slowNow && rsi > 30 && price < ema:
 		sig.Side = "SELL"
 	default:
 		sig.Side = "HOLD"
